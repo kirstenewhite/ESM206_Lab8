@@ -161,3 +161,12 @@ modelsummary(list(homes_lm1, homes_lm2, homes_lm3))
 
 ```
 
+## Start making predictions with this model 
+- use `broom::augment()` to add a column that includes the predicted value for each of those observations 
+```{r}
+homes_predicted <- augment(homes_lm1)
+```
+
+Use the `predict()` function to try out your model on new scenarios that you create. 
+
+
