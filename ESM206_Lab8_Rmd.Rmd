@@ -69,9 +69,16 @@ homes_sub_summary
 - Add a visualization to explore data to compare home prices vs city 
 
 ```{r}
+# Plot home prices by city 
 ggplot(data = homes_sub, aes(x = Price)) +
-  geom_density(aes(color = City, fill = City), alpha = 0.3) + # alpha makes it slightly transparent so you can see layers; alpha is outside aes() because it is not referring to a variable
+  geom_density(aes(color = City, fill = City), alpha = 0.3) + # alpha fills in the lines and make it slightly transparent so you can see layers; alpha is outside aes() because it is not referring to a variable
   scale_x_continuous(limits = c(0, 3e6)) # a way to limit the plot from 0-3 million by setting limits on the x-axis
+```
+
+Explore the relationship between square footage and home price (visually) 
+```{r}
+ggplot(data = homes_sub, aes(x = SqFt, y = Price)) +
+  geom_point(aes(color = City, pch = Status), alpha = 0.6) 
 ```
 
 
