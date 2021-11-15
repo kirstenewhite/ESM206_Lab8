@@ -80,5 +80,84 @@ Explore the relationship between square footage and home price (visually)
 ggplot(data = homes_sub, aes(x = SqFt, y = Price)) +
   geom_point(aes(color = City, pch = Status), alpha = 0.6) 
 ```
+### Model the relationship as home price as the dependent variable 
 
+```{r}
+# make a saturated model (linear regression model) this will include every variable in the data set
+
+homes_lm1 <- lm(Price ~ City + Bedrooms + Bathrooms + SqFt + PricePerSqFt + Status, data = homes_sub) # Determine the price based on ALL variables in data set 
+
+# Make a subset that only contains the quantitative variables (Price through Price/SqFt)
+
+homes_quant <- homes_sub %>%
+  select(Price: PricePerSqFt)
+
+# Now find correlation between these
+
+homes_cor <- cor(homes_quant)
+homes_cor # returns table indicating correlation between all the values (0 - 1 range) 
+
+# use corrplot to visually see these correlations represented in the table above 
+
+corrplot(homes_cor, method = "ellipse")
+
+# How would I explore the diagnostic plots? 
+plot(homes_lm1)
+
+```
+
+# Considering the coefficients returned when typw homes_lm1 into the console: 
+- can expect a house in Atascadero to cost ~ -9000 less than a house in Arroyo Grande
+- red flag that house price decreases with number of bedrooms (for each additional bedroom in a house, I expect the price to decrease ~ -30000; does not make sense)
+- another red flag: regular sale price is negative compared to foreclosure price 
+- consider: what [variables] should be removed? 
+
+Let's try another model (homes_lm2) where we simplify this based on our concerns. Include only 3 predictor variables: 
+- City
+- SqFt
+- Status 
+
+```{r}
+homes_lm2 <- lm(Price ~ City + SqFt + Status, data = homes_sub)
+homes_lm2
+
+# based on this, SLO homes are more expensive while Atascadero and Sm are cheaper than Arroyo Grande; compared to a foreclosed house, regular and short sale homes sell for more and have a higher sq footage 
+
+plot(homes_lm2) # plot diagnostics 
+```
+
+Next, lets look at the summary of both of these (in the console: summary(homes_lm1))
+- r squared for homes_lm1 (0.8457) -> 84% of variance in home price is explained by the predictor variables in this model (all of them)
+
+Now, looking at the summary for homes_lm2
+- r squared value is 0.5268 -> 52% variance in home price is explained by the predictor variables in this model (city, sqft, status)
+
+Which is the best? (least complex, best explanation) -> Use AIC
+- higher AIC = worse balance between model fit and complexity 
+- lower AIC = better balance between model fit and complexity 
+
+```{r}
+AIC(homes_lm1)
+AIC(homes_lm2)
+
+# indicates the first model (including all variables) has the best balance. We know this is not true. 
+```
+
+Let's try another permutation of this model that we think makes sense. Then check out and compare model fit, outputs, and AIC value. 
+```{r}
+homes_lm3 <- lm(Price ~ City + SqFt + Bedrooms + Status, data = homes_sub)
+
+plot(homes_lm3)
+summary(homes_lm3)
+AIC(homes_lm3)
+```
+
+## Use 'model summary' to show model outputs side by side: 
+- can do this on single model or multiple models
+- if you use modelsummary for multiple models you need to input them as a list
+```{r}
+modelsummary(homes_lm1)
+modelsummary(list(homes_lm1, homes_lm2, homes_lm3))
+
+```
 
