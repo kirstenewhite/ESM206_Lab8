@@ -1,0 +1,77 @@
+---
+title: "ESM206_Lab8"
+author: "Kirsten White"
+date: "11/15/2021"
+output: html_document
+---
+
+```{r setup, include = FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+**Lab 8 Objectives:**
+
+- Explore multivariate data (SLO housing prices)
+- Perform multiple linear regression
+- Assess diagnostics
+- Compare different models by AIC
+- Explain model outputs
+- Make a nice table of regression results
+- Make predictions using a final model
+- git branch
+
+```{r packages}
+# Install packages
+
+library(tidyverse)
+library(corrplot)
+library(stargazer)
+library(broom)
+library(modelsummary)
+library(here)
+```
+
+### 2. Load data, and filter to only include homes in SLO, Arroyo Grande, Santa Maria-Orcutt, and Atascadero
+Read in the data: 
+
+```{r}
+# Read in the data 
+homes <- read_csv(here("data", "slo_homes.csv"))
+
+```
+
+Create the subset: 
+
+```{r}
+# Subset created to only include cities: SLO, Arroyo Grande, Santa Maria-Orcutt, and Atascadero
+homes_sub <- homes %>%
+  filter(City == "Arroyo Grande" | City == "Santa Maria-Orcutt" | City == "Atascadero" | City == "San Luis Obispo") 
+# looks in every row to see if any of these cities appear in the row; could also do: filter(City %in% c("city", "city", etc))
+# to make sure this worked: type > unique(homes_sub$City) in the console and make sure only those 4 cities are returned 
+
+```
+
+## Explore data a little bit 
+Basic reminders of exploration -> summary stats for (home price, based on city and sale status)
+
+- Find and return in a summary table the mean and standard deviation of home price, grouped by city and status
+
+```{r, include = FALSE, eval = FALSE}
+homes_sub_summary <- homes_sub %>%
+  group_by(City, Status) %>%
+  summarise(mean_price = mean(Price, na.rm = TRUE), 
+            sd_price = sd(Price, na.rm = TRUE)) # use na.rm = TRUE to ... []
+
+homes_sub_summary
+
+# Decide I don't even want to run this code, add eval = FALSE; will just skip to next code chunk and run that (used to see if this code chunk is the one having issues)
+```
+- Add a visualization to explore data to compare home prices vs city 
+
+```{r}
+ggplot(data = homes_sub, aes(x = Price)) +
+  geom_density(aes(color = City, fill = City), alpha = 0.3) + # alpha makes it slightly transparent so you can see layers; alpha is outside aes() because it is not referring to a variable
+  scale_x_continuous(limits = c(0, 3e6)) # a way to limit the plot from 0-3 million by setting limits on the x-axis
+```
+
+
